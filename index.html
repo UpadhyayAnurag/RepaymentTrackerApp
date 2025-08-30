@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Repayment Tracker</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Enhanced mobile-first responsive design */
+        @media (max-width: 414px) {
+            .mobile-padding {
+                padding: 1rem;
+            }
+            .mobile-text {
+                font-size: 0.875rem;
+            }
+            .mobile-input {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+            }
+        }
+        
+        /* Custom animations */
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pulse-success {
+            animation: pulseSuccess 0.6s ease-in-out;
+        }
+        
+        @keyframes pulseSuccess {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Custom gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Custom button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-disabled {
+            cursor: not-allowed;
+            background: #9ca3af !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Enhanced history cards */
+        .history-card {
+            transition: all 0.2s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .history-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Success indicator */
+        .success-indicator {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        /* Input focus styles */
+        .custom-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+
+    <div class="container mx-auto px-4 py-6 min-h-screen flex items-center justify-center">
+        <div class="w-full max-w-lg mx-auto glass rounded-3xl shadow-2xl p-6 md:p-8 mobile-padding">
+
+            <header class="mb-8 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-400 to-indigo-600 rounded-full flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Loan Tracker</h1>
+                <p class="text-gray-600 text-sm md:text-base">Track payments & notify instantly</p>
+            </header>
+
+            <!-- Setup Section (shown only if no loan is set) -->
+            <section id="setup-section" class="space-y-6 mb-8">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Setup Loan Details
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="totalAmount" class="block text-sm font-medium text-gray-700 mb-2">Total Loan Amount (₹)</label>
+                            <input type="number" id="totalAmount" placeholder="e.g., 100000" class="w-full px-4 py-3 mobile-input bg-white border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 custom-input transition-all duration-200">
+                        </div>
+                        
+                        <div>
+                            <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-2">Recipient's Phone Number</label>
+                            <input type="tel" id="phoneNumber" placeholder="e.g., 9876543210" class="w-full px-4 py-3 mobile-input bg-white border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 custom-input transition-all duration-200">
+                        </div>
+                        
+                        <button id="setupLoanBtn" class="w-full btn-primary text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all duration-300">
+                            Start Tracking
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Tracker Section (shown after setup) -->
+            <div id="tracker-section" style="display: none;">
+                
+                <!-- Balance Display Card -->
+                <section class="mb-6">
+                    <div class="bg-gradient-to-r from-green-400 to-blue-500 p-6 rounded-2xl text-white text-center shadow-lg">
+                        <h3 class="text-sm font-medium uppercase tracking-wider opacity-90 mb-2">Remaining Balance</h3>
+                        <p id="remainingAmount" class="text-3xl md:text-4xl font-bold mb-2">₹0.00</p>
+                        <div class="flex justify-center items-center space-x-4 text-sm opacity-90">
+                            <span id="totalPaidAmount">Paid: ₹0</span>
+                            <span>•</span>
+                            <span id="loanProgress">0% Complete</span>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-white bg-opacity-20 rounded-full h-2 mt-4">
+                            <div id="progressBar" class="bg-white h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Stats -->
+                <section class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Total Loan</p>
+                        <p id="displayTotalAmount" class="text-lg font-bold text-gray-800">₹0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Payments Made</p>
+                        <p id="paymentCount" class="text-lg font-bold text-gray-800">0</p>
+                    </div>
+                </section>
+
+                <!-- Make Payment Section -->
+                <section class="mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Make Payment
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="amountPaid" class="block text-sm font-medium text-gray-700 mb-2">Payment Amount (₹)</label>
+                                <input type="number" id="amountPaid" placeholder="Enter amount to pay" class="w-full px-4 py-3 mobile-input bg-gray-50 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 custom-input transition-all duration-200">
+                            </div>
+                            
+                            <!-- Quick Amount Buttons -->
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="quick-amount-btn px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors" data-amount="1000">₹1,000</button>
+                                <button class="quick-amount-btn px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors" data-amount="5000">₹5,000</button>
+                                <button class="quick-amount-btn px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors" data-amount="10000">₹10,000</button>
+                            </div>
+                            
+                            <button id="savePaymentBtn" class="w-full btn-primary text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Record Payment & Send SMS
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payment History -->
+                <section>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-4 bg-gray-50 border-b border-gray-100">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center justify-between">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    Payment History
+                                </span>
+                                <button id="exportHistoryBtn" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Export</button>
+                            </h2>
+                        </div>
+                        
+                        <div id="historyList" class="max-h-80 overflow-y-auto">
+                            <div id="noHistoryText" class="text-center py-8 text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <p class="font-medium">No payments recorded yet</p>
+                                <p class="text-sm">Make your first payment to get started</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings and Actions -->
+                <section class="mt-6 space-y-3">
+                    <button id="editLoanBtn" class="w-full bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl border border-gray-200 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit Loan Details
+                    </button>
+                    
+                    <button id="resetDataBtn" class="w-full bg-red-50 text-red-600 font-medium py-3 px-6 rounded-xl border border-red-200 hover:bg-red-100 transition-colors duration-200 flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Clear All Data
+                    </button>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="successToast" class="fixed top-6 left-1/2 transform -translate-x-1/2 success-indicator text-white px-6 py-3 rounded-xl shadow-lg z-50 transition-all duration-300 opacity-0 -translate-y-full">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="toastMessage">Payment recorded successfully!</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const totalAmountEl = document.getElementById('totalAmount');
+            const phoneNumberEl = document.getElementById('phoneNumber');
+            const remainingAmountEl = document.getElementById('remainingAmount');
+            const amountPaidEl = document.getElementById('amountPaid');
+            const savePaymentBtn = document.getElementById('savePaymentBtn');
+            const setupLoanBtn = document.getElementById('setupLoanBtn');
+            const editLoanBtn = document.getElementById('editLoanBtn');
+            const historyListEl = document.getElementById('historyList');
+            const noHistoryText = document.getElementById('noHistoryText');
+            const resetDataBtn = document.getElementById('resetDataBtn');
+            const exportHistoryBtn = document.getElementById('exportHistoryBtn');
+            const setupSection = document.getElementById('setup-section');
+            const trackerSection = document.getElementById('tracker-section');
+            const successToast = document.getElementById('successToast');
+            const toastMessage = document.getElementById('toastMessage');
+            const quickAmountBtns = document.querySelectorAll('.quick-amount-btn');
+
+            // Additional display elements
+            const displayTotalAmount = document.getElementById('displayTotalAmount');
+            const totalPaidAmount = document.getElementById('totalPaidAmount');
+            const paymentCount = document.getElementById('paymentCount');
+            const loanProgress = document.getElementById('loanProgress');
+            const progressBar = document.getElementById('progressBar');
+
+            // App State
+            let state = {
+                totalAmount: 0,
+                phoneNumber: '',
+                payments: [],
+                isSetup: false
+            };
+
+            // --- UTILITY FUNCTIONS ---
+            function formatCurrency(amount) {
+                return amount.toLocaleString('en-IN', { 
+                    minimumFractionDigits: 0, 
+                    maximumFractionDigits: 0 
+                });
+            }
+
+            function showToast(message, duration = 3000) {
+                toastMessage.textContent = message;
+                successToast.classList.remove('opacity-0', '-translate-y-full');
+                successToast.classList.add('opacity-100', 'translate-y-0');
+                
+                setTimeout(() => {
+                    successToast.classList.add('opacity-0', '-translate-y-full');
+                    successToast.classList.remove('opacity-100', 'translate-y-0');
+                }, duration);
+            }
+
+            // --- STORAGE FUNCTIONS ---
+            function loadStateFromStorage() {
+                try {
+                    const storedState = localStorage.getItem('loanTrackerState');
+                    if (storedState) {
+                        state = { ...state, ...JSON.parse(storedState) };
+                    }
+                } catch (error) {
+                    console.error('Error loading state:', error);
+                }
+            }
+
+            function saveStateToStorage() {
+                try {
+                    localStorage.setItem('loanTrackerState', JSON.stringify(state));
+                } catch (error) {
+                    console.error('Error saving state:', error);
+                }
+            }
+
+            // --- UI UPDATE FUNCTIONS ---
+            function updateUI() {
+                if (!state.isSetup || !state.totalAmount) {
+                    setupSection.style.display = 'block';
+                    trackerSection.style.display = 'none';
+                    totalAmountEl.value = state.totalAmount > 0 ? state.totalAmount : '';
+                    phoneNumberEl.value = state.phoneNumber;
+                    return;
+                }
+
+                setupSection.style.display = 'none';
+                trackerSection.style.display = 'block';
+
+                // Calculate values
+                const totalPaid = state.payments.reduce((sum, p) => sum + p.amount, 0);
+                const remaining = state.totalAmount - totalPaid;
+                const progressPercentage = state.totalAmount > 0 ? (totalPaid / state.totalAmount) * 100 : 0;
+
+                // Update display elements
+                remainingAmountEl.textContent = `₹${formatCurrency(remaining)}`;
+                displayTotalAmount.textContent = `₹${formatCurrency(state.totalAmount)}`;
+                totalPaidAmount.textContent = `Paid: ₹${formatCurrency(totalPaid)}`;
+                paymentCount.textContent = state.payments.length;
+                loanProgress.textContent = `${Math.round(progressPercentage)}% Complete`;
+                progressBar.style.width = `${progressPercentage}%`;
+
+                // Update quick amount buttons based on remaining amount
+                updateQuickAmountButtons(remaining);
+                
+                // Render payment history
+                renderHistory();
+
+                // Handle payment completion
+                if (remaining <= 0 && state.totalAmount > 0) {
+                    amountPaidEl.disabled = true;
+                    amountPaidEl.placeholder = "🎉 Loan fully paid!";
+                    savePaymentBtn.disabled = true;
+                    savePaymentBtn.classList.add('btn-disabled');
+                    savePaymentBtn.innerHTML = `
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Loan Completed!
+                    `;
+                } else {
+                    amountPaidEl.disabled = false;
+                    amountPaidEl.placeholder = "Enter amount to pay";
+                    savePaymentBtn.disabled = false;
+                    savePaymentBtn.classList.remove('btn-disabled');
+                    savePaymentBtn.innerHTML = `
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Record Payment & Send SMS
+                    `;
+                }
+            }
+
+            function updateQuickAmountButtons(remainingAmount) {
+                const amounts = [1000, 5000, 10000];
+                quickAmountBtns.forEach((btn, index) => {
+                    const amount = amounts[index];
+                    if (amount <= remainingAmount) {
+                        btn.style.display = 'block';
+                        btn.setAttribute('data-amount', amount);
+                        btn.textContent = `₹${formatCurrency(amount)}`;
+                    } else if (remainingAmount > 0) {
+                        btn.style.display = 'block';
+                        btn.setAttribute('data-amount', remainingAmount);
+                        btn.textContent = `₹${formatCurrency(remainingAmount)}`;
+                        btn.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
+                        btn.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
+                    } else {
+                        btn.style.display = 'none';
+                    }
+                });
+            }
+            
+            function renderHistory() {
+                historyListEl.innerHTML = '';
+                
+                if (state.payments.length === 0) {
+                    historyListEl.appendChild(noHistoryText);
+                    return;
+                }
+
+                // Create container for history items
+                const historyContainer = document.createElement('div');
+                historyContainer.className = 'space-y-2 p-4';
+                
+                // Newest payments first
+                [...state.payments].reverse().forEach((payment, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'history-card bg-gray-50 p-4 rounded-xl slide-in';
+                    item.style.animationDelay = `${index * 0.1}s`;
+                    
+                    const totalPaidAtTime = state.payments.slice(0, state.payments.indexOf(payment) + 1)
+                        .reduce((sum, p) => sum + p.amount, 0);
+                    const remainingAtTime = state.totalAmount - totalPaidAtTime;
+                    
+                    item.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-1">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                    <p class="font-semibold text-gray-800 text-lg">₹${formatCurrency(payment.amount)}</p>
+                                </div>
+                                <p class="text-xs text-gray-500 ml-6">${payment.date}</p>
+                                <p class="text-xs text-gray-400 ml-6 mt-1">Balance after: ₹${formatCurrency(remainingAtTime)}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Paid
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    historyContainer.appendChild(item);
+                });
+                
+                historyListEl.appendChild(historyContainer);
+            }
+
+            // --- EVENT HANDLERS ---
+            function handleSetupLoan() {
+                const amount = parseFloat(totalAmountEl.value);
+                const phone = phoneNumberEl.value.trim();
+                
+                if (!amount || amount <= 0) {
+                    alert('Please enter a valid loan amount.');
+                    return;
+                }
+                
+                if (!phone) {
+                    alert('Please enter the recipient\'s phone number.');
+                    return;
+                }
+                
+                if (phone.length < 10) {
+                    alert('Please enter a valid phone number.');
+                    return;
+                }
+                
+                state.totalAmount = amount;
+                state.phoneNumber = phone;
+                state.isSetup = true;
+                
+                saveStateToStorage();
+                updateUI();
+                showToast('Loan setup completed!');
+            }
+
+            function handleEditLoan() {
+                state.isSetup = false;
+                updateUI();
+            }
+
+            function handleSavePayment() {
+                const amount = parseFloat(amountPaidEl.value);
+                
+                // Validation
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Please enter a valid payment amount.');
+                    return;
+                }
+
+                const totalPaid = state.payments.reduce((sum, p) => sum + p.amount, 0);
+                const remaining = state.totalAmount - totalPaid;
+                
+                if(amount > remaining) {
+                    alert(`Payment cannot exceed remaining balance of ₹${formatCurrency(remaining)}.`);
+                    return;
+                }
+                
+                // Add payment to state
+                const payment = {
+                    amount: amount,
+                    date: new Date().toLocaleString('en-IN', { 
+                        dateStyle: 'medium', 
+                        timeStyle: 'short' 
+                    })
+                };
+                
+                state.payments.push(payment);
+                saveStateToStorage();
+                
+                // Prepare and send SMS
+                prepareSms(amount);
+                
+                // Update UI with animation
+                updateUI();
+                
+                // Show success feedback
+                savePaymentBtn.classList.add('pulse-success');
+                setTimeout(() => savePaymentBtn.classList.remove('pulse-success'), 600);
+                
+                showToast(`Payment of ₹${formatCurrency(amount)} recorded!`);
+                
+                // Clear input field
+                amountPaidEl.value = '';
+            }
+            
+            function handleQuickAmount(amount) {
+                amountPaidEl.value = amount;
+                amountPaidEl.focus();
+            }
+            
+            function handleResetData() {
+                if (confirm('⚠️ This will permanently delete all loan data and payment history. Are you sure?')) {
+                    try {
+                        localStorage.removeItem('loanTrackerState');
+                        state = {
+                            totalAmount: 0,
+                            phoneNumber: '',
+                            payments: [],
+                            isSetup: false
+                        };
+                        updateUI();
+                        showToast('All data cleared successfully');
+                    } catch (error) {
+                        alert('Error clearing data. Please try again.');
+                    }
+                }
+            }
+
+            function handleExportHistory() {
+                if (state.payments.length === 0) {
+                    alert('No payment history to export.');
+                    return;
+                }
+
+                const totalPaid = state.payments.reduce((sum, p) => sum + p.amount, 0);
+                const remaining = state.totalAmount - totalPaid;
+                
+                let exportText = `LOAN REPAYMENT SUMMARY\n`;
+                exportText += `========================\n`;
+                exportText += `Total Loan: ₹${formatCurrency(state.totalAmount)}\n`;
+                exportText += `Total Paid: ₹${formatCurrency(totalPaid)}\n`;
+                exportText += `Remaining: ₹${formatCurrency(remaining)}\n`;
+                exportText += `Recipient: ${state.phoneNumber}\n\n`;
+                exportText += `PAYMENT HISTORY\n`;
+                exportText += `===============\n`;
+                
+                state.payments.forEach((payment, index) => {
+                    exportText += `${index + 1}. ₹${formatCurrency(payment.amount)} - ${payment.date}\n`;
+                });
+                
+                // Create and download file
+                const blob = new Blob([exportText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `loan_history_${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('History exported successfully!');
+            }
+
+            // --- SMS FUNCTIONALITY ---
+            function prepareSms(paidAmount) {
+                const totalPaid = state.payments.reduce((sum, p) => sum + p.amount, 0);
+                const remaining = state.totalAmount - totalPaid;
+                
+                let message;
+                if (remaining <= 0) {
+                    message = `🎉 Great news! I have completed my loan repayment with a final payment of ₹${formatCurrency(paidAmount)}. The total loan of ₹${formatCurrency(state.totalAmount)} is now fully paid. Thank you for your patience!`;
+                } else {
+                    message = `Hi! I've made a payment of ₹${formatCurrency(paidAmount)} towards my loan. Remaining balance: ₹${formatCurrency(remaining)} out of ₹${formatCurrency(state.totalAmount)}. Thank you!`;
+                }
+                
+                // Try to open SMS app with message
+                try {
+                    const smsLink = `sms:${state.phoneNumber}?body=${encodeURIComponent(message)}`;
+                    window.location.href = smsLink;
+                } catch (error) {
+                    // Fallback: copy message to clipboard
+                    navigator.clipboard.writeText(message).then(() => {
+                        alert('SMS app not available. Message copied to clipboard!');
+                    }).catch(() => {
+                        alert(`SMS app not available. Please manually send this message to ${state.phoneNumber}:\n\n${message}`);
+                    });
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            
+            // Setup loan
+            if (setupLoanBtn) {
+                setupLoanBtn.addEventListener('click', handleSetupLoan);
+            }
+            
+            // Create setup button if it doesn't exist
+            if (!setupLoanBtn) {
+                const btn = document.createElement('button');
+                btn.id = 'setupLoanBtn';
+                btn.className = 'w-full btn-primary text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all duration-300';
+                btn.textContent = 'Start Tracking';
+                btn.addEventListener('click', handleSetupLoan);
+                
+                // Find the setup section and append button
+                const setupDiv = setupSection.querySelector('.space-y-4');
+                if (setupDiv) {
+                    setupDiv.appendChild(btn);
+                }
+            }
+
+            // Edit loan details
+            editLoanBtn.addEventListener('click', handleEditLoan);
+            
+            // Save payment
+            savePaymentBtn.addEventListener('click', handleSavePayment);
+            
+            // Quick amount buttons
+            quickAmountBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const amount = btn.getAttribute('data-amount');
+                    handleQuickAmount(amount);
+                });
+            });
+            
+            // Reset data
+            resetDataBtn.addEventListener('click', handleResetData);
+            
+            // Export history
+            exportHistoryBtn.addEventListener('click', handleExportHistory);
+            
+            // Enter key support for inputs
+            totalAmountEl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSetupLoan();
+            });
+            
+            phoneNumberEl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSetupLoan();
+            });
+            
+            amountPaidEl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSavePayment();
+            });
+
+            // Real-time input validation and formatting
+            totalAmountEl.addEventListener('input', (e) => {
+                // Remove any non-numeric characters except decimal point
+                e.target.value = e.target.value.replace(/[^\d.]/g, '');
+            });
+
+            phoneNumberEl.addEventListener('input', (e) => {
+                // Remove any non-numeric characters
+                e.target.value = e.target.value.replace(/\D/g, '');
+                // Limit to 10 digits for Indian phone numbers
+                if (e.target.value.length > 10) {
+                    e.target.value = e.target.value.slice(0, 10);
+                }
+            });
+
+            amountPaidEl.addEventListener('input', (e) => {
+                // Remove any non-numeric characters except decimal point
+                e.target.value = e.target.value.replace(/[^\d.]/g, '');
+            });
+
+            // --- INITIALIZATION ---
+            function initialize() {
+                loadStateFromStorage();
+                updateUI();
+                
+                // Add touch-friendly enhancements for mobile
+                if ('ontouchstart' in window) {
+                    document.body.classList.add('touch-device');
+                    
+                    // Improve button feedback on touch devices
+                    const buttons = document.querySelectorAll('button');
+                    buttons.forEach(btn => {
+                        btn.addEventListener('touchstart', () => {
+                            btn.style.transform = 'scale(0.98)';
+                        });
+                        btn.addEventListener('touchend', () => {
+                            btn.style.transform = 'scale(1)';
+                        });
+                    });
+                }
+                
+                // Auto-focus first empty field
+                if (!state.isSetup) {
+                    setTimeout(() => {
+                        if (!totalAmountEl.value) {
+                            totalAmountEl.focus();
+                        } else if (!phoneNumberEl.value) {
+                            phoneNumberEl.focus();
+                        }
+                    }, 300);
+                }
+            }
+
+            // --- ADDITIONAL FEATURES ---
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + Enter to save payment (when in payment section)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.isSetup) {
+                    if (amountPaidEl.value && !savePaymentBtn.disabled) {
+                        handleSavePayment();
+                    }
+                }
+                
+                // Escape key to clear current input
+                if (e.key === 'Escape') {
+                    if (document.activeElement === amountPaidEl) {
+                        amountPaidEl.value = '';
+                    }
+                }
+            });
+
+            // Swipe gestures for mobile (basic implementation)
+            let touchStartY = 0;
+            let touchEndY = 0;
+
+            document.addEventListener('touchstart', (e) => {
+                touchStartY = e.changedTouches[0].screenY;
+            });
+
+            document.addEventListener('touchend', (e) => {
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipe();
+            });
+
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const swipeDistance = touchStartY - touchEndY;
+                
+                // Swipe up to focus on payment input (when in tracker mode)
+                if (swipeDistance > swipeThreshold && state.isSetup && !amountPaidEl.disabled) {
+                    amountPaidEl.focus();
+                }
+            }
+
+            // Initialize the app
+            initialize();
+        });
+        
+        // Service Worker for offline functionality (basic)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Register service worker for offline support
+                const swScript = `
+                    self.addEventListener('install', (e) => {
+                        console.log('Loan Tracker installed for offline use');
+                    });
+                    
+                    self.addEventListener('fetch', (e) => {
+                        // Basic offline support
+                        if (e.request.url.includes('loan-tracker')) {
+                            e.respondWith(
+                                caches.match(e.request).then((response) => {
+                                    return response || fetch(e.request);
+                                })
+                            );
+                        }
+                    });
+                `;
+                
+                const blob = new Blob([swScript], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('Offline support enabled'))
+                    .catch(() => console.log('Offline support not available'));
+            });
+        }
+    </script>
+
+</body>
+</html>
